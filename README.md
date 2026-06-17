@@ -1,12 +1,12 @@
-# 🎬 Cinema Song Requests
+# 🎬 Screen Dedications
 
-A cinema-themed website where users can dedicate songs to their loved ones — the requests play on a virtual cinema projector with a starry night backdrop.
+A cinema-themed website where users dedicate songs to their loved ones — shown on the big screen with a starry night backdrop.
 
 ## How It Works
 
-1. **Request a song** — fill in your name, your beloved's name, a YouTube URL, and a message
-2. **Watch on the projector** — messages appear on screen for 30 seconds, then the song plays
-3. **Daily refresh** — 10 requests per day, resets at midnight
+1. **Dedicate a song** — fill in your name, your beloved's name, a YouTube URL, and a message
+2. **Watch on the big screen** — messages appear on the projector screen, then the song plays
+3. **Daily refresh** — 10 dedications per day, resets at midnight MMT (Myanmar Time)
 
 ## Tech Stack
 
@@ -24,9 +24,11 @@ npm run dev
 ## Deployment
 
 ### Frontend (GitHub Pages)
+
 Push to `main` — GitHub Actions builds and deploys automatically.
 
 ### Edge Functions (Supabase)
+
 ```bash
 supabase functions deploy submit-request
 supabase functions deploy todays-requests
@@ -38,7 +40,6 @@ supabase functions deploy mark-played
 ```
 src/
 ├── components/
-│   ├── CinemaSeats.vue      — Decorative seat silhouette
 │   ├── MessageCard.vue      — Cinema message display
 │   ├── NavBar.vue           — Navigation bar
 │   ├── ToastNotification.vue
@@ -50,7 +51,7 @@ src/
 ├── router/
 │   └── index.js
 ├── views/
-│   ├── RequestForm.vue      — Song request form
+│   ├── RequestForm.vue      — Song dedication form
 │   └── Projector.vue        — Cinema projector page
 ├── App.vue
 ├── main.js
@@ -67,7 +68,7 @@ supabase/
 ## Security
 
 - **IP rate limiting**: 1 request per IP per day (captured server-side via `x-forwarded-for`)
-- **Global daily cap**: 10 requests total per day
+- **Global daily cap**: 10 dedications total per day (resets at midnight MMT)
 - **Honeypot field**: Invisible to users, catches bots
 - **RLS**: All writes blocked for anonymous users — only edge functions (service_role) can modify data
 

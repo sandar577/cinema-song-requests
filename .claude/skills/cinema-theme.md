@@ -289,134 +289,200 @@ Every page gets this base background. Apply to `<body>` or the root `<div id="ap
 - Max-width `max-w-lg` for the card — never stretches too wide
 - Character counter on message textarea (max 300)
 
-### 3. Projector.vue — Cinema Projector Page (Full Screen)
+### 3. Projector.vue — Cinema Projector Page (Back Row Perspective)
+
+The projector page simulates sitting in the **last row of a cinema**, watching the screen ahead. It uses:
+
+- A real cinema interior photo as background (Unsplash), layered with dark gradient overlays
+- Screen area at the top — video and messages appear on a distant projector screen
+- Simple seat-back silhouettes at the bottom (SVG) — we're sitting behind a row
+- Projector beam from behind us toward the screen
+- Starfield layer at low opacity
 
 ```html
-<div class="h-screen w-screen bg-cinema-void relative overflow-hidden flex flex-col">
-  <!-- Starfield -->
-  <div class="absolute inset-0 stars-layer opacity-30 pointer-events-none"></div>
+<div class="h-[calc(100vh-4rem)] bg-cinema-void relative overflow-hidden flex flex-col no-scrollbar">
 
-  <!-- Projector beam cone (top-center) -->
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] pointer-events-none"
-       style="background: radial-gradient(ellipse at 50% 0%, rgba(245,240,232,0.08) 0%, rgba(245,240,232,0.03) 40%, transparent 70%);">
+  <!-- CINEMA PHOTO BACKGROUND -->
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+       style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&q=75&auto=format&fit=crop'); background-position: center 55%;">
+    <!-- Heavy dark gradient: pitch black at top, reveals photo in lower portion -->
+    <div class="absolute inset-0"
+         style="background:
+           linear-gradient(to bottom,
+             rgba(6,4,10,1) 0%,
+             rgba(6,4,10,0.92) 18%,
+             rgba(6,4,10,0.75) 38%,
+             rgba(6,4,10,0.55) 58%,
+             rgba(6,4,10,0.7) 78%,
+             rgba(6,4,10,0.92) 100%);">
+    </div>
   </div>
 
-  <!-- Projector lens glow dot -->
-  <div class="absolute top-8 left-1/2 -translate-x-1/2 w-3 h-3 bg-cinema-beam rounded-full blur-sm opacity-60 pointer-events-none animate-pulse"></div>
+  <!-- Starfield (subtle) -->
+  <div class="absolute inset-0 stars-layer opacity-15 pointer-events-none"></div>
 
-  <!-- Screen area (where messages/videos appear) -->
-  <div class="flex-1 flex items-center justify-center px-4 md:px-12">
-    <!-- Content slot: MessageCard or VideoPlayer -->
-    <slot />
+  <!-- PROJECTOR BEAM — from behind us toward the screen -->
+  <div class="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none z-10"
+       style="width: min(55vw, 700px); height: 40vh;
+              background: radial-gradient(ellipse at 50% 0%,
+                rgba(245,240,232,0.045) 0%,
+                rgba(245,240,232,0.015) 50%,
+                transparent 75%);">
   </div>
 
-  <!-- Cinema seats silhouette (bottom) -->
-  <CinemaSeats />
+  <!-- Projector lens glow -->
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 bg-cinema-beam rounded-full blur-sm opacity-40 pointer-events-none animate-pulse-glow z-10"></div>
+
+  <!-- SCREEN AREA -->
+  <div class="flex-1 flex items-start justify-center relative z-20 pt-[5vh] sm:pt-[6vh] md:pt-[7vh] px-2">
+    <!-- Content: MessageCard or VideoPlayer -->
+  </div>
+
+  <!-- FOREGROUND SEAT SILHOUETTES — we're sitting behind this row -->
+  <div class="relative z-30 w-full pointer-events-none flex-shrink-0" style="height: min(14vh, 140px);">
+    <!-- SVG seat backs with radial glow and floor fade -->
+  </div>
+
 </div>
 ```
 
 **Rules:**
-- Full viewport: `h-screen w-screen` — the projector is immersive
-- Starfield at 30% opacity (dimmer behind the bright projection)
-- Projector beam: radial gradient from top-center, warm tungsten color
-- Tiny glowing dot at the top (the "projector lens")
-- Content area: flex-1 centered — this is where MessageCard and VideoPlayer render
-- Always shows CinemaSeats at the bottom
+- **Perspective is key**: screen is at the top (distant), seats are at the bottom (close) — creates depth
+- Cinema photo: use a real theater interior photo with heavy dark gradient overlay
+- Gradient: pitch black at top (where screen is), gradually reveals photo lower down
+- Screen content (`MessageCard`/`VideoPlayer`) uses `max-w-[min(68vw,800px)]` — sized like a distant screen
+- Seat silhouettes: simple SVG paths, dark cinema-midnight colors, non-interactive
+- Projector beam: warm tungsten glow from above/behind toward the screen area
+- No scrollbar: `no-scrollbar` class hides scrollbars
 
-### 4. MessageCard.vue — Cinema Message Display
+### 4. MessageCard.vue — Cinema Message Display (Back Row Scale)
+
+Sized to match the distant screen perspective — same max-width as VideoPlayer so message and video feel like the same screen.
 
 ```html
-<div class="w-full max-w-3xl mx-auto text-center animate-fade-in-up">
-  <!-- From/To (like opening credits) -->
-  <div class="mb-8 space-y-2">
-    <p class="font-cinema text-2xl md:text-3xl text-cinema-gold-dim italic">From</p>
-    <p class="font-display text-4xl md:text-6xl lg:text-7xl text-cinema-beam font-bold tracking-wide">{{ fromName }}</p>
+<div class="w-full max-w-[min(68vw,800px)] mx-auto text-center animate-fade-in-up px-2 py-2">
+  <!-- From -->
+  <div class="mb-3 sm:mb-4 space-y-0.5">
+    <p class="font-cinema text-lg sm:text-xl md:text-2xl text-cinema-gold-dim italic">From</p>
+    <p class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-cinema-beam font-bold tracking-wide">{{ fromName }}</p>
   </div>
 
-  <!-- Divider -->
-  <div class="w-24 h-px bg-cinema-gold/40 mx-auto my-8"></div>
+  <!-- Gold divider -->
+  <div class="w-12 sm:w-16 h-px bg-cinema-gold/30 mx-auto my-3 sm:my-4"></div>
 
   <!-- To -->
-  <div class="mb-10 space-y-2">
-    <p class="font-cinema text-2xl md:text-3xl text-cinema-gold-dim italic">To</p>
-    <p class="font-display text-4xl md:text-6xl lg:text-7xl text-cinema-beam font-bold tracking-wide">{{ toName }}</p>
+  <div class="mb-4 sm:mb-6 space-y-0.5">
+    <p class="font-cinema text-lg sm:text-xl md:text-2xl text-cinema-gold-dim italic">To</p>
+    <p class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-cinema-beam font-bold tracking-wide">{{ toName }}</p>
   </div>
 
   <!-- Message (subtitle style, monospace) -->
-  <div class="bg-cinema-night/40 backdrop-blur-sm border border-cinema-cloud/20 rounded-xl px-8 py-6 max-w-2xl mx-auto">
-    <p class="font-subtitle text-xl md:text-2xl lg:text-3xl text-cinema-subtitle leading-relaxed">
+  <div class="bg-cinema-night/30 backdrop-blur-sm border border-cinema-cloud/15 rounded-lg px-4 sm:px-6 py-3 sm:py-4 max-w-lg mx-auto">
+    <p class="font-subtitle text-base sm:text-lg md:text-xl lg:text-2xl text-cinema-subtitle leading-relaxed">
       "{{ message }}"
     </p>
   </div>
 
   <!-- Countdown -->
-  <p class="mt-8 text-cinema-text-dim/50 text-sm font-body">
+  <p class="mt-4 sm:mt-6 text-xs sm:text-sm font-body animate-pulse-glow">
     Music begins in {{ countdown }}s...
   </p>
 </div>
 ```
 
 **Rules:**
-- Maximum width `max-w-3xl` — keeps text readable on giant screens
-- "From" and "To" use `.font-cinema` in italic gold-dim (elegant, understated)
-- Names: `.font-display` large, cinema-beam color, bold — they GLOW on screen
-- Message: `.font-subtitle` (Courier Prime monospace) — feels like subtitles/film credits
-- Message box: subtle backdrop blur background, soft border
-- Countdown timer at the bottom, dim and small
-- Fade-in-up animation on entry
+- Same max-width as VideoPlayer: `max-w-[min(68vw,800px)]` — consistent screen feel
+- "From" / "To" labels: `.font-cinema` italic in cinema-gold-dim
+- Names: `.font-display` large, cinema-beam color, bold — they glow on the screen
+- Message: `.font-subtitle` (Courier Prime monospace), cinema-subtitle color — feels like film subtitles
+- Message box: subtle backdrop-blur background
+- Countdown: small, dim, pulsing glow animation
 
-### 5. VideoPlayer.vue — YouTube Embed Screen
+### 5. VideoPlayer.vue — Distant Projector Screen
+
+The video plays on a framed cinema screen, sized smaller to simulate distance (as viewed from the back row).
 
 ```html
-<div class="w-full h-full flex items-center justify-center">
-  <div class="relative w-full" style="max-width: min(90vw, calc(90vh * 16/9));">
-    <!-- Aspect ratio container -->
-    <div class="relative w-full" style="padding-bottom: 56.25%;">
-      <iframe
-        :src="embedUrl"
-        class="absolute inset-0 w-full h-full rounded-lg shadow-2xl shadow-black/60 border border-cinema-cloud/20"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-        frameborder="0">
-      </iframe>
+<div class="w-full flex justify-center animate-fade-in pt-2 sm:pt-4 md:pt-0">
+  <!-- Screen sized like it's viewed from the back row: ~68vw max -->
+  <div class="relative w-full max-w-[min(68vw,800px)]">
+    <!-- Framed screen with dark bezel and subtle gold glow -->
+    <div class="relative rounded-sm overflow-hidden"
+         style="border: 3px solid rgba(26,22,64,0.5);
+                box-shadow: 0 0 30px rgba(212,168,83,0.06),
+                            0 0 80px rgba(0,0,0,0.6),
+                            0 0 4px rgba(212,168,83,0.08),
+                            inset 0 0 0 1px rgba(255,255,255,0.03);">
+      <!-- 16:9 aspect ratio -->
+      <div class="relative w-full bg-black" style="padding-bottom: 56.25%;">
+        <iframe :src="embedUrl"
+                class="absolute inset-0 w-full h-full"
+                allow="autoplay; encrypted-media"
+                allowfullscreen frameborder="0">
+        </iframe>
+      </div>
     </div>
+    <!-- Subtle glow below the screen -->
+    <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-2/3 h-6
+                bg-[radial-gradient(ellipse_at_center,rgba(212,168,83,0.04)_0%,transparent_70%)]
+                pointer-events-none"></div>
   </div>
 </div>
 ```
 
 **Rules:**
-- Center the video, maintain 16:9 aspect ratio
-- Max dimensions: 90vw wide, or 90vh tall (whichever limits first)
-- Subtle border and deep shadow — video floats in darkness
-- iframe takes full container with `absolute inset-0`
+- Screen max width: `max-w-[min(68vw,800px)]` — smaller = more distant = realistic back-row feel
+- Framed with dark bezel (3px semi-transparent border) + subtle gold glow shadow
+- 16:9 ratio maintained via `padding-bottom: 56.25%`
+- iframe fills container with `absolute inset-0`
+- Subtle warm glow below the screen (aisle lighting reflection)
+- `animate-fade-in` for smooth appearance
 
-### 6. CinemaSeats.vue — Decorative Seats Silhouette
+### 6. Projector Foreground Seats — Inline SVG Silhouette
+
+Instead of a separate component, seat silhouettes are drawn inline in `<Projector.vue>`.
+These are simple SVG seat-back shapes at the very bottom of the viewport —
+we're sitting in the back row looking past the row ahead toward the screen.
 
 ```html
-<div class="relative w-full h-24 md:h-32 lg:h-40 pointer-events-none">
-  <!-- SVG row of seats -->
-  <svg viewBox="0 0 1200 120" class="w-full h-full" preserveAspectRatio="none">
-    <!-- Row 1 (back) -->
-    <rect x="50" y="10" width="60" height="0" rx="0" fill="#1a1640" opacity="0.6" />
-    <!-- ... use repeating small seat shapes ... -->
-    <!-- Seats as small trapezoids/shapes -->
-    <g fill="#1a1640" opacity="0.5">
-      <!-- Back row -->
-      <path d="M40,30 Q70,20 100,30 L95,55 Q70,65 45,55 Z" />
-      <path d="M120,30 Q150,20 180,30 L175,55 Q150,65 125,55 Z" />
-      <!-- repeat for full row width... -->
+<div class="relative z-30 w-full pointer-events-none flex-shrink-0"
+     style="height: min(14vh, 140px); margin-bottom: 2px;">
+  <svg viewBox="0 0 1200 140" preserveAspectRatio="none"
+       class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="seatGlow" cx="50%" cy="30%" r="60%">
+        <stop offset="0%" stop-color="#14102e" stop-opacity="0.6" />
+        <stop offset="100%" stop-color="#06040a" stop-opacity="0.95" />
+      </radialGradient>
+      <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#14102e" stop-opacity="0.55" />
+        <stop offset="100%" stop-color="#06040a" stop-opacity="1" />
+      </linearGradient>
+    </defs>
+
+    <!-- 13-14 seat backs spread across the full width -->
+    <g fill="url(#seatGlow)" stroke="rgba(26,22,64,0.3)" stroke-width="0.5">
+      <path d="M85,20 Q115,5 145,20 L140,70 Q115,95 90,70 Z" />
+      <!-- ... repeat for each seat ... -->
+      <path d="M1105,20 Q1135,5 1165,20 L1160,70 Q1135,95 1110,70 Z" />
     </g>
+
+    <!-- Subtle aisle light strip along the top of seats -->
+    <rect x="0" y="0" width="1200" height="1.5" fill="rgba(212,168,83,0.08)" />
+
+    <!-- Floor gradient fade to black -->
+    <rect x="0" y="70" width="1200" height="70" fill="url(#fadeDown)" />
   </svg>
 </div>
 ```
 
 **Rules:**
-- Fixed height bar at the very bottom of the projector screen
-- Dark silhouettes in `cinema-midnight` (same as the night theme)
+- Height: `min(14vh, 140px)` — proportional, never too tall
+- Seat shapes: simple bezier curves (`Q` paths) resembling headrests viewed from behind
+- Dark colors: `#14102e` (cinema-midnight) fading to `#06040a` (cinema-void) at bottom
+- Faint gold aisle light strip at the top of the seats
 - Non-interactive (`pointer-events-none`)
-- Creates the illusion of sitting in a theater looking at the screen
-- Responsive height: `h-24 md:h-32 lg:h-40`
-- Never gets in the way of content
+- Floor fades to pure black at the very bottom edge
 
 ### 7. ToastNotification.vue — Feedback Toast
 
@@ -520,25 +586,28 @@ Desktop (≥640px):
   - Submit: full-width, with hover effects
 ```
 
-### Projector Page
+### Projector Page (Back Row Perspective)
 ```
 Mobile (<640px):
+  - Screen: max-w-[85vw]
   - Names: text-2xl
-  - Message: text-lg
-  - Seats: h-16 (thin strip)
-  - Video: full-width, constrained to screen
+  - Message: text-base
+  - Seats: h-[10vh]
+  - Projector beam: narrower, dimmer
 
 Tablet (640-1024px):
-  - Names: text-4xl
-  - Message: text-xl
-  - Seats: h-24
+  - Screen: max-w-[72vw]
+  - Names: text-3xl
+  - Message: text-lg
+  - Seats: h-[12vh]
 
 Desktop (≥1024px):
-  - Names: text-6xl lg:text-7xl
-  - Message: text-2xl lg:text-3xl
-  - Seats: h-32 lg:h-40
-  - Prominent projector beam
-  - Full starfield visible
+  - Screen: max-w-[min(68vw,800px)]
+  - Names: text-4xl lg:text-5xl
+  - Message: text-xl lg:text-2xl
+  - Seats: h-[min(14vh,140px)]
+  - Full projector beam
+  - Cinema photo visible through gradient
 ```
 
 ### NavBar
@@ -563,8 +632,11 @@ Desktop (≥1024px):
 ### ❌ DON'T
 - Don't use pure white (#fff) — always cinema-text (#e8e4dc) or cinema-beam (#f5f0e8)
 - Don't use bright saturated colors except cinema-red for primary actions
-- Don't add scrollbars on the projector page — it must fit 100vh
+- Don't add scrollbars on the projector page — it must fit the viewport
+- Don't make the screen/video full-viewport — keep it distant (max ~68vw) for back-row perspective
 - Don't use default browser fonts — always pick from the cinema font stack
 - Don't use flat, opaque backgrounds — prefer transparency + blur
 - Don't forget the honeypot field in the form
 - Don't use system-default blue links — use cinema-gold or cinema-red
+- Don't use complex 3D CSS for seats — simple SVG silhouettes are cleaner
+- Don't show screen content below the seats — keep the depth hierarchy (screen at top, seats at bottom)

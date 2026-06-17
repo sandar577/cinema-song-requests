@@ -30,73 +30,109 @@
 /* --- Starry Background Layer --- */
 .stars-layer {
   background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 40% 20%, rgba(255,255,255,0.3), transparent),
-    radial-gradient(1px 1px at 55% 5%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 70% 12%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 85% 18%, rgba(255,255,255,0.3), transparent),
-    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(2px 2px at 35% 3%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 60% 22%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 78% 7%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 92% 10%, rgba(255,255,255,0.3), transparent),
-    radial-gradient(1px 1px at 5% 30%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 48% 28%, rgba(255,255,255,0.35), transparent),
-    radial-gradient(1px 1px at 80% 25%, rgba(255,255,255,0.45), transparent);
+    radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 25% 8%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 40% 20%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 55% 5%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 70% 12%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 85% 18%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 15% 25%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(2px 2px at 35% 3%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 60% 22%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 78% 7%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 92% 10%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 5% 30%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 48% 28%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 80% 25%, rgba(255, 255, 255, 0.45), transparent);
   background-size: 100% 40%;
   background-repeat: no-repeat;
 }
 
 /* --- Animation Keyframes --- */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .animate-fade-in {
   animation: fade-in 1.5s ease-out forwards;
 }
 
 @keyframes curtain-reveal {
-  from { clip-path: inset(0 50% 0 50%); }
-  to   { clip-path: inset(0 0 0 0); }
+  from {
+    clip-path: inset(0 50% 0 50%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 .animate-curtain-reveal {
   animation: curtain-reveal 1s ease-in-out forwards;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
 
 /* --- Toast Transitions --- */
-.toast-slide-enter-active { transition: all 0.4s ease-out; }
-.toast-slide-leave-active { transition: all 0.3s ease-in; }
-.toast-slide-enter-from   { opacity: 0; transform: translate(-50%, 20px); }
-.toast-slide-leave-to     { opacity: 0; transform: translate(-50%, 10px); }
+.toast-slide-enter-active {
+  transition: all 0.4s ease-out;
+}
+.toast-slide-leave-active {
+  transition: all 0.3s ease-in;
+}
+.toast-slide-enter-from {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+}
+.toast-slide-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 10px);
+}
 
 /* --- Base Resets --- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -108,5 +144,10 @@ body {
 }
 
 /* Projector page — no scrollbar */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

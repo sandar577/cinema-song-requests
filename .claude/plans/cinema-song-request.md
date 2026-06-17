@@ -268,7 +268,6 @@ Supabase (remote)
 │   │   ├── MessageCard.vue              — Cinema-style message display
 │   │   ├── VideoPlayer.vue              — YouTube iframe wrapper
 │   │   ├── ToastNotification.vue        — Toast notification system
-│   │   └── CinemaSeats.vue             — Decorative seat silhouette
 │   └── views/
 │       ├── RequestForm.vue              — Song request form
 │       └── Projector.vue               — Cinema projector page
