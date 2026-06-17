@@ -35,21 +35,39 @@ function initPlayer() {
       videoId: props.videoId,
       playerVars: {
         autoplay: 1,
+        mute: 1,
         // controls: 0,
         modestbranding: 1,
         rel: 0,
         fs: 0,
         playsinline: 1,
         enablejsapi: 1,
+        origin: window.location.origin,
       },
       events: {
-        onReady: () => {
+        onReady: (event) => {
           console.log("[VideoPlayer] ready:", props.videoId);
+          // Try to unmute after muted autoplay starts — some browsers allow
+          // unmuting once the video is already playing
+          try {
+            event.target.unMute();
+            console.log("[VideoPlayer] unmuted after ready");
+          } catch (e) {
+            console.log("[VideoPlayer] unmute not allowed:", e);
+          }
         },
         onStateChange: (event) => {
           console.log(
             `[VideoPlayer] state=${event.data} (video: ${props.videoId})`
           );
+          // YT.PlayerState.PLAYING = 1 — try to unmute now that playback started
+          if (event.data === 1) {
+            try {
+              event.target.unMute();
+            } catch (e) {
+              /* browser may block this */
+            }
+          }
           // YT.PlayerState.ENDED = 0
           if (event.data === 0) {
             console.log("[VideoPlayer] ✓ ended");
