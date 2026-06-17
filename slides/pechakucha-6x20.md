@@ -37,7 +37,7 @@ and receiver feel like they're in a **cinema**.
 - **Request form** with IP rate limiting, MMT timezone-aware daily cap
 - **Projector page** — immersive cinema view: dim light, velvet seats, projector beam,
   message card on screen → auto-plays the dedicated YouTube video
-- All backed by **Supabase** (Postgres + Edge Functions + RLS)
+- All backed by **Supabase** 
 
 ---
 
@@ -46,8 +46,6 @@ and receiver feel like they're in a **cinema**.
 - **MCP:** Supabase MCP — ran migrations, deployed Edge Functions, managed DB
 - **Skill:** `.claude/skills/cinema-theme.md` — enforced cinema design system (color palette, typography, component recipes, animations) across every Vue component
 - **Agent:** `.claude/agents/performant-code-reviewer.md` — reviewed code for performance side effects (N+1 queries, memory leaks, re-renders)
-
-![bg right:30% fit](https://mermaid.ink/svg/flowchart%20TD%0A%20%20%20%20V%5BVue%203%20SPA%5D%20--%3E%20G%5BGitHub%20Pages%5D%0A%20%20%20%20V%20--%3E%20S%5BSupabase%20DB%5D%0A%20%20%20%20V%20--%3E%20E%5BEdge%20Functions%5D)
 
 ---
 
