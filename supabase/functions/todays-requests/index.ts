@@ -18,25 +18,27 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    // Compute midnight MMT (UTC+6:30) as a proper UTC timestamp.
-    // Bare date "2026-06-17" → Postgres interprets as midnight UTC ✗
-    // We need "2026-06-16T17:30:00.000Z" (midnight MMT in UTC) ✓
+    // Compute this Monday midnight MMT (UTC+6:30) as a UTC timestamp.
+    // Week starts on Monday. We find the most recent Monday in MMT time.
     const now = new Date();
     const MMT_OFFSET_MS = 6.5 * 60 * 60 * 1000; // 6h 30m
     const mmtNow = new Date(now.getTime() + MMT_OFFSET_MS);
-    const todayMMT = mmtNow.toISOString().split('T')[0]; // e.g. "2026-06-17"
-    const [y, m, d] = todayMMT.split('-').map(Number);
-    // Subtract MMT offset from midnight MMT to get the UTC equivalent
-    const midnightMMT_utc = new Date(Date.UTC(y, m - 1, d) - MMT_OFFSET_MS);
-    const midnightMMT_iso = midnightMMT_utc.toISOString();
-    console.log(`[todays-requests] MMT today=${todayMMT}, since=${midnightMMT_iso}`);
+    const mmtDate = new Date(mmtNow.toISOString().split('T')[0]); // midnight MMT as UTC date
+    const dow = mmtDate.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    const daysSinceMonday = (dow + 6) % 7; // Mon=0, Tue=1, ..., Sun=6
+    const mondayMMT = new Date(mmtDate);
+    mondayMMT.setUTCDate(mondayMMT.getUTCDate() - daysSinceMonday);
+    // Subtract MMT offset to get UTC equivalent of Monday midnight MMT
+    const mondayMMT_utc = new Date(mondayMMT.getTime() - MMT_OFFSET_MS);
+    const mondayMMT_iso = mondayMMT_utc.toISOString();
+    console.log(`[weekly-requests] MMT now=${mmtNow.toISOString()}, week since=${mondayMMT_iso}`);
 
-    // Fetch today's unplayed requests, ordered by creation time (oldest first)
+    // Fetch this week's unplayed requests, ordered by creation time (oldest first)
     const { data, error } = await supabaseClient
       .from('song_requests')
       .select('*')
       .eq('played', false)
-      .gte('created_at', midnightMMT_iso)
+      .gte('created_at', mondayMMT_iso)
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -47,13 +49,13 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    // Count total today for remaining slots (MMT date)
+    // Count total this week for remaining slots
     const { count } = await supabaseClient
       .from('song_requests')
       .select('*', { count: 'exact', head: true })
-      .gte('created_at', midnightMMT_iso)
+      .gte('created_at', mondayMMT_iso)
 
-    const total = 10
+    const total = 30
     const used = count || 0
     const remaining = Math.max(0, total - used)
 

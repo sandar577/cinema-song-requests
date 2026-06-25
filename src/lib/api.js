@@ -41,7 +41,7 @@ export async function submitRequest({
 }
 
 /**
- * Fetch today's unplayed requests via the edge function.
+ * Fetch this week's unplayed requests via the edge function.
  * Returns { success, data: requests[] } or { success: false, error }
  */
 export async function fetchTodaysRequests() {
@@ -75,7 +75,7 @@ export async function markPlayed(requestId) {
 }
 
 /**
- * Get remaining daily slots. Returns { success, data: { remaining, total } }
+ * Get remaining weekly slots. Returns { success, data: { remaining, total } }
  */
 export async function getRemainingSlots() {
   const res = await fetch(supabaseFunctionUrl("todays-requests"), {

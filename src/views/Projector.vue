@@ -11,6 +11,7 @@ const queue = ref([]);
 const currentIndex = ref(0);
 const countdown = ref(15);
 const error = ref(null);
+const showPlaylist = ref(false);
 
 let countdownTimer = null;
 let pollTimer = null;
@@ -95,6 +96,20 @@ function startCountdown() {
 function onVideoEnded() {
   console.log("[Projector] onVideoEnded() called");
   advanceToNext();
+}
+
+function skipToNext() {
+  console.log("[Projector] skipToNext() called by user");
+  advanceToNext();
+}
+
+function goToPrevious() {
+  console.log("[Projector] goToPrevious() called by user");
+  clearInterval(countdownTimer);
+  if (queue.value.length === 0) return;
+  const prevIndex =
+    (currentIndex.value - 1 + queue.value.length) % queue.value.length;
+  showMessage(prevIndex);
 }
 
 async function advanceToNext() {
@@ -296,7 +311,7 @@ onBeforeUnmount(() => {
           class="inline-block w-10 h-10 border-2 border-cinema-gold-dim/30 border-t-cinema-gold rounded-full animate-spin mb-4"
         ></div>
         <p class="font-body text-cinema-text-dim text-sm">
-          Loading today's requests...
+          Loading this week's requests...
         </p>
       </div>
 
@@ -317,7 +332,7 @@ onBeforeUnmount(() => {
           Once someone dedicates a song, it will appear on the big screen.
         </p>
         <p class="font-body text-cinema-text-dim/40 text-xs mt-5">
-          Today's queue is empty — be the first to request!
+          This week's queue is empty — be the first to request!
         </p>
       </div>
 
@@ -356,13 +371,36 @@ onBeforeUnmount(() => {
       <!-- PLAYING — video playing on the distant projector screen -->
       <div
         v-else-if="state === 'playing' && currentVideoId"
-        class="w-full flex items-start justify-center"
+        class="w-full flex items-center justify-center gap-2 sm:gap-4 px-2"
       >
+        <!-- Prev button -->
+        <button
+          @click="goToPrevious"
+          class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full bg-cinema-night/70 backdrop-blur-md border border-cinema-cloud/20 text-cinema-text-dim hover:text-cinema-gold hover:border-cinema-gold/40 transition-all duration-200 text-xs font-body pointer-events-auto"
+          title="Previous song"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <!-- Video player -->
         <VideoPlayer
           :key="'video-' + currentRequest.id"
           :video-id="currentVideoId"
           @ended="onVideoEnded"
         />
+
+        <!-- Skip button -->
+        <button
+          @click="skipToNext"
+          class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full bg-cinema-night/70 backdrop-blur-md border border-cinema-cloud/20 text-cinema-text-dim hover:text-cinema-gold hover:border-cinema-gold/40 transition-all duration-200 text-xs font-body pointer-events-auto"
+          title="Skip to next song"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -435,14 +473,15 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- PROGRESS INDICATOR -->
+    <!-- PROGRESS INDICATOR + PLAYLIST TOGGLE -->
     <Transition name="toast-slide">
       <div
         v-if="queue.length > 0 && (state === 'message' || state === 'playing')"
-        class="relative z-40 flex justify-center pb-3 pointer-events-none"
+        class="relative z-40 flex justify-center items-center gap-3 pb-3 pointer-events-none"
       >
+        <!-- Progress pill -->
         <div
-          class="flex items-center gap-2 bg-cinema-night/60 backdrop-blur-md rounded-full px-4 py-1 border border-cinema-cloud/15"
+          class="flex items-center gap-2 bg-cinema-night/60 backdrop-blur-md rounded-full px-4 py-1.5 border border-cinema-cloud/15"
         >
           <span class="font-body text-xs text-cinema-text-dim/60">
             {{ currentIndex + 1 }} / {{ queue.length }}
@@ -457,7 +496,100 @@ onBeforeUnmount(() => {
             • Now Playing
           </span>
         </div>
+        <!-- Playlist button — prominent -->
+        <button
+          @click.stop="showPlaylist = !showPlaylist"
+          class="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cinema-gold/15 backdrop-blur-md border border-cinema-gold/30 text-cinema-gold hover:bg-cinema-gold/25 hover:border-cinema-gold/50 transition-all duration-200"
+          title="View playlist"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h10M4 18h10" />
+          </svg>
+          <span class="font-body text-xs font-medium">Playlist</span>
+        </button>
+      </div>
+    </Transition>
+
+    <!-- PLAYLIST OVERLAY -->
+    <Transition name="fade">
+      <div
+        v-if="showPlaylist && queue.length > 0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        @click.self="showPlaylist = false"
+      >
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <!-- Panel -->
+        <div
+          class="relative z-10 w-full max-w-md max-h-[70vh] bg-cinema-night/95 backdrop-blur-md border border-cinema-cloud/20 rounded-2xl shadow-2xl shadow-black/60 flex flex-col overflow-hidden animate-fade-in-up"
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-cinema-cloud/10">
+            <h3 class="font-display text-lg text-cinema-gold">
+              This Week's Playlist
+            </h3>
+            <button
+              @click="showPlaylist = false"
+              class="text-cinema-text-dim/50 hover:text-cinema-gold transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <!-- Song list -->
+          <div class="flex-1 overflow-y-auto no-scrollbar divide-y divide-cinema-cloud/5">
+            <div
+              v-for="(req, index) in queue"
+              :key="req.id"
+              class="flex items-start gap-3 px-5 py-3 transition-colors"
+              :class="index === currentIndex ? 'bg-cinema-gold/10' : 'hover:bg-cinema-cloud/5'"
+            >
+              <!-- Index / Now Playing indicator -->
+              <div class="flex-shrink-0 w-6 text-center pt-0.5">
+                <span
+                  v-if="index === currentIndex"
+                  class="text-cinema-gold text-sm animate-pulse-glow"
+                >
+                  ♪
+                </span>
+                <span v-else class="font-body text-xs text-cinema-text-dim/40">
+                  {{ index + 1 }}
+                </span>
+              </div>
+              <!-- Song info -->
+              <div class="flex-1 min-w-0">
+                <p class="font-body text-sm text-cinema-text truncate">
+                  {{ req.from_name }} → {{ req.to_name }}
+                </p>
+                <p
+                  v-if="req.message"
+                  class="font-body text-xs text-cinema-text-dim/60 mt-0.5 line-clamp-1"
+                >
+                  {{ req.message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Footer -->
+          <div class="px-5 py-3 border-t border-cinema-cloud/10 text-center">
+            <p class="font-body text-xs text-cinema-text-dim/40">
+              {{ queue.length }} of 30 songs this week
+            </p>
+          </div>
+        </div>
       </div>
     </Transition>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

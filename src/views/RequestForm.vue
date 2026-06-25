@@ -233,13 +233,13 @@ onMounted(() => {
         </form>
       </div>
 
-      <!-- Daily counter -->
+      <!-- Weekly counter -->
       <Transition name="toast-slide">
         <p
           v-if="remainingSlots !== null"
           class="text-center text-cinema-text-dim/50 text-xs mt-6 font-body"
         >
-          {{ remainingSlots }} of 10 dedications remaining today
+          {{ remainingSlots }} of 30 dedications remaining this week
         </p>
       </Transition>
     </div>

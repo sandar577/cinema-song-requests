@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
     // --- Capture real IP ---
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-    // --- Insert (DB trigger enforces IP + daily limit) ---
+    // --- Insert (DB trigger enforces IP daily + weekly limit) ---
     try {
       const { data, error } = await supabaseClient
         .from('song_requests')
@@ -95,9 +95,9 @@ Deno.serve(async (req: Request) => {
             { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
-        if (msg.includes('Daily limit')) {
+        if (msg.includes('Weekly limit')) {
           return new Response(
-            JSON.stringify({ error: 'Daily limit of 10 requests reached. Try again tomorrow!' }),
+            JSON.stringify({ error: 'Weekly limit of 30 requests reached. Try again next week!' }),
             { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
