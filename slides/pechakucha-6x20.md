@@ -37,7 +37,9 @@ and receiver feel like they're in a **cinema**.
 - **Request form** with IP rate limiting, MMT timezone-aware daily cap
 - **Projector page** — immersive cinema view: dim light, velvet seats, projector beam,
   message card on screen → auto-plays the dedicated YouTube video
-- All backed by **Supabase** 
+- **Playback controls** — skip ⏭ / previous ⏮ buttons to navigate the queue
+- **Playlist overlay** — tap to see all this week's dedications, with "now playing" highlight
+- All backed by **Supabase**
 
 ---
 
